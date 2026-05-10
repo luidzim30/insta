@@ -378,9 +378,10 @@ function CarouselPost3({ instagramProfile, imagePreviewUrl, investigatedHandle }
 }
 
 // WhatsApp Analysis Stage Component
-function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
+function WhatsAppAnalysisStage({ investigatedPhone, onComplete, userPhoto }: {
   investigatedPhone: string
   onComplete: () => void
+  userPhoto: string | null
 }) {
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState(0)
@@ -389,18 +390,18 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
   const [hasNotification, setHasNotification] = useState(false)
 
   const steps = [
-    { label: "Conectando aos servidores WhatsApp", status: "pending" },
-    { label: "Verificando número de telefone", status: "pending" },
-    { label: "Analisando nível de conexão", status: "pending" },
-    { label: "Carregando dados do perfil", status: "pending" },
-    { label: "Escaneando mensagens deletadas", status: "pending" },
+    { label: "Connecting to WhatsApp servers", status: "pending" },
+    { label: "Verifying phone number", status: "pending" },
+    { label: "Analyzing connection level", status: "pending" },
+    { label: "Loading profile data", status: "pending" },
+    { label: "Scanning for deleted messages", status: "pending" },
   ]
 
   const discoveryMessages = [
-    { text: "17 conversas detectadas de outra cidade", type: "danger" as const },
-    { text: "23 fotos trocadas", type: "warning" as const },
-    { text: "7 áudios às 3:00 AM", type: "danger" as const },
-    { text: "1 notificação não visualizada", type: "info" as const },
+    { text: "17 conversations detected from another city", type: "danger" as const },
+    { text: "23 photos exchanged", type: "warning" as const },
+    { text: "7 audios at 3:00 AM", type: "danger" as const },
+    { text: "1 unread notification", type: "info" as const },
   ]
 
   useEffect(() => {
@@ -454,28 +455,28 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
 
   return (
     <div className="text-center space-y-6 px-4 max-w-md mx-auto">
-      {/* Circular Progress Ring */}
+      {/* Circular Progress Ring with User Photo */}
       <div className="flex justify-center mb-6">
-        <div className="relative w-24 h-24">
-          <svg className="w-24 h-24 transform -rotate-90">
+        <div className="relative w-28 h-28">
+          <svg className="w-28 h-28 transform -rotate-90">
             <circle
-              cx="48"
-              cy="48"
-              r="40"
+              cx="56"
+              cy="56"
+              r="50"
               stroke="currentColor"
               strokeWidth="6"
               fill="transparent"
               className="text-gray-700"
             />
             <circle
-              cx="48"
-              cy="48"
-              r="40"
+              cx="56"
+              cy="56"
+              r="50"
               stroke="url(#pinkGradient)"
               strokeWidth="6"
               fill="transparent"
-              strokeDasharray={251.2}
-              strokeDashoffset={251.2 - (progress / 100) * 251.2}
+              strokeDasharray={314}
+              strokeDashoffset={314 - (progress / 100) * 314}
               strokeLinecap="round"
               className="transition-all duration-300"
             />
@@ -486,16 +487,32 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
               </linearGradient>
             </defs>
           </svg>
+          {/* User Photo in Center */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {userPhoto ? (
+              <Image
+                src={userPhoto}
+                alt="Target profile"
+                width={80}
+                height={80}
+                className="rounded-full object-cover w-20 h-20 border-2 border-pink-500/50"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center">
+                <User size={32} className="text-gray-500" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Title */}
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">Acessando WhatsApp</h2>
+        <h2 className="text-2xl font-bold text-foreground">Accessing WhatsApp</h2>
         <p className="text-pink-500 font-mono text-lg">{investigatedPhone || "+55 (37) 99122-1212"}</p>
         {currentStep >= 2 && (
           <p className="text-green-400 text-sm flex items-center justify-center gap-1">
-            Conexão verificada <CheckCircle size={14} />
+            Connection verified <CheckCircle size={14} />
           </p>
         )}
       </div>
@@ -503,7 +520,7 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Descobrindo...</span>
+          <span className="text-muted-foreground">Discovering...</span>
           <span className="text-pink-500 font-bold">{Math.round(progress)}%</span>
         </div>
         <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
@@ -552,7 +569,7 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
         <div className="glass-card rounded-xl p-4 border border-red-500/30 bg-red-500/5 space-y-3">
           <div className="flex items-center gap-2 text-red-400 font-bold">
             <AlertTriangle size={18} />
-            <span>Descobertas Alarmantes</span>
+            <span>Alarming Discoveries</span>
           </div>
           <div className="space-y-2">
             {discoveries.map((discovery, index) => (
@@ -587,7 +604,7 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete }: {
           onClick={onComplete}
           className="w-full py-5 text-xl font-bold uppercase gradient-premium text-white rounded-xl shadow-2xl hover:opacity-90 transition-all duration-300 transform hover:scale-105 animate-pulse-glow"
         >
-          VER RESULTADO COMPLETO
+          DISCOVER MORE
         </Button>
       )}
     </div>
@@ -1674,10 +1691,11 @@ const fetchUserLocation = async () => {
         )
       case 2: // WhatsApp Analysis Stage (NEW - after Target Profile)
         return (
-          <WhatsAppAnalysisStage 
-            investigatedPhone={investigatedPhone}
-            onComplete={nextStage}
-          />
+<WhatsAppAnalysisStage
+  investigatedPhone={investigatedPhone}
+  onComplete={nextStage}
+  userPhoto={imagePreviewUrl}
+  />
         )
       case 3: // OLD STAGE 2: Upload and Handle
   return (
