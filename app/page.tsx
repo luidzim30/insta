@@ -377,6 +377,238 @@ function CarouselPost3({ instagramProfile, imagePreviewUrl, investigatedHandle }
   )
 }
 
+// WhatsApp Analysis Stage Component
+function WhatsAppAnalysisStage({ investigatedPhone, onComplete, userPhoto }: {
+  investigatedPhone: string
+  onComplete: () => void
+  userPhoto: string | null
+}) {
+  const [progress, setProgress] = useState(0)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [discoveries, setDiscoveries] = useState<{text: string, type: 'danger' | 'warning' | 'info'}[]>([])
+  const [showContinue, setShowContinue] = useState(false)
+  const [hasNotification, setHasNotification] = useState(false)
+
+  const steps = [
+    { label: "Connecting to WhatsApp servers", status: "pending" },
+    { label: "Verifying phone number", status: "pending" },
+    { label: "Analyzing connection level", status: "pending" },
+    { label: "Loading profile data", status: "pending" },
+    { label: "Scanning for deleted messages", status: "pending" },
+  ]
+
+  const discoveryMessages = [
+    { text: "17 conversations detected from another city", type: "danger" as const },
+    { text: "23 photos exchanged", type: "warning" as const },
+    { text: "7 audios at 3:00 AM", type: "danger" as const },
+    { text: "1 unread notification", type: "info" as const },
+  ]
+
+  useEffect(() => {
+    // Progress animation
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval)
+          return 100
+        }
+        return prev + 0.5
+      })
+    }, 80)
+
+    // Step progression
+    const stepTimers = [
+      setTimeout(() => setCurrentStep(1), 1500),
+      setTimeout(() => setCurrentStep(2), 3000),
+      setTimeout(() => setCurrentStep(3), 5000),
+      setTimeout(() => setCurrentStep(4), 7000),
+      setTimeout(() => setCurrentStep(5), 9000),
+    ]
+
+    // Discovery reveals
+    const discoveryTimers = [
+      setTimeout(() => setDiscoveries(prev => [...prev, discoveryMessages[0]]), 4000),
+      setTimeout(() => setDiscoveries(prev => [...prev, discoveryMessages[1]]), 5500),
+      setTimeout(() => setDiscoveries(prev => [...prev, discoveryMessages[2]]), 7000),
+      setTimeout(() => {
+        setDiscoveries(prev => [...prev, discoveryMessages[3]])
+        setHasNotification(true)
+      }, 8500),
+    ]
+
+    // Show continue button
+    const continueTimer = setTimeout(() => setShowContinue(true), 10000)
+
+    return () => {
+      clearInterval(progressInterval)
+      stepTimers.forEach(clearTimeout)
+      discoveryTimers.forEach(clearTimeout)
+      clearTimeout(continueTimer)
+    }
+  }, [])
+
+  const getStepStatus = (index: number) => {
+    if (index < currentStep) return "complete"
+    if (index === currentStep) return "loading"
+    return "pending"
+  }
+
+  return (
+    <div className="text-center space-y-6 px-4 max-w-md mx-auto">
+      {/* Circular Progress Ring with User Photo */}
+      <div className="flex justify-center mb-6">
+        <div className="relative w-28 h-28">
+          <svg className="w-28 h-28 transform -rotate-90">
+            <circle
+              cx="56"
+              cy="56"
+              r="50"
+              stroke="currentColor"
+              strokeWidth="6"
+              fill="transparent"
+              className="text-gray-700"
+            />
+            <circle
+              cx="56"
+              cy="56"
+              r="50"
+              stroke="url(#pinkGradient)"
+              strokeWidth="6"
+              fill="transparent"
+              strokeDasharray={314}
+              strokeDashoffset={314 - (progress / 100) * 314}
+              strokeLinecap="round"
+              className="transition-all duration-300"
+            />
+            <defs>
+              <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#ec4899" />
+                <stop offset="100%" stopColor="#f43f5e" />
+              </linearGradient>
+            </defs>
+          </svg>
+          {/* User Photo in Center */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {userPhoto ? (
+              <img
+                src={userPhoto}
+                alt="Target profile"
+                className="rounded-full object-cover w-20 h-20 border-2 border-pink-500/50"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center">
+                <User size={32} className="text-gray-500" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">Accessing WhatsApp</h2>
+        <p className="text-pink-500 font-mono text-lg">{investigatedPhone || "+55 (37) 99122-1212"}</p>
+        {currentStep >= 2 && (
+          <p className="text-green-400 text-sm flex items-center justify-center gap-1">
+            Connection verified <CheckCircle size={14} />
+          </p>
+        )}
+      </div>
+
+      {/* Progress Bar */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Discovering...</span>
+          <span className="text-pink-500 font-bold">{Math.round(progress)}%</span>
+        </div>
+        <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-pink-500 to-rose-500 transition-all duration-300 rounded-full"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Steps List */}
+      <div className="glass-card rounded-xl p-4 border border-border space-y-3">
+        {steps.map((step, index) => {
+          const status = getStepStatus(index)
+          return (
+            <div key={index} className="flex items-center gap-3 text-left">
+              {status === "complete" && (
+                <div className="w-6 h-6 rounded bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle size={16} className="text-green-400" />
+                </div>
+              )}
+              {status === "loading" && (
+                <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
+              {status === "pending" && (
+                <div className="w-6 h-6 rounded bg-gray-700 flex items-center justify-center flex-shrink-0">
+                  <X size={14} className="text-gray-500" />
+                </div>
+              )}
+              <span className={`text-sm ${
+                status === "complete" ? "text-pink-400" : 
+                status === "loading" ? "text-foreground" : 
+                "text-muted-foreground"
+              }`}>
+                {step.label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Discoveries Section */}
+      {discoveries.length > 0 && (
+        <div className="glass-card rounded-xl p-4 border border-red-500/30 bg-red-500/5 space-y-3">
+          <div className="flex items-center gap-2 text-red-400 font-bold">
+            <AlertTriangle size={18} />
+            <span>Alarming Discoveries</span>
+          </div>
+          <div className="space-y-2">
+            {discoveries.map((discovery, index) => (
+              <div 
+                key={index} 
+                className={`flex items-center gap-2 text-sm animate-fade-in p-2 rounded-lg ${
+                  discovery.type === 'danger' ? 'bg-red-500/10 text-red-400' :
+                  discovery.type === 'warning' ? 'bg-yellow-500/10 text-yellow-400' :
+                  'bg-blue-500/10 text-blue-400'
+                }`}
+              >
+                {discovery.type === 'danger' && <AlertTriangle size={14} />}
+                {discovery.type === 'warning' && <Camera size={14} />}
+                {discovery.type === 'info' && (
+                  <div className="relative">
+                    <MessageCircle size={14} />
+                    {hasNotification && index === discoveries.length - 1 && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    )}
+                  </div>
+                )}
+                <span>{discovery.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Continue Button */}
+      {showContinue && (
+        <Button
+          onClick={onComplete}
+          className="w-full py-5 text-xl font-bold uppercase gradient-premium text-white rounded-xl shadow-2xl hover:opacity-90 transition-all duration-300 transform hover:scale-105 animate-pulse-glow"
+        >
+          DISCOVER MORE
+        </Button>
+      )}
+    </div>
+  )
+}
+
 function SpySystemContent() {
   // All state and functionality remains the same
   const [currentStage, setCurrentStage] = useState(0)
@@ -424,6 +656,11 @@ function SpySystemContent() {
   const [crackingText, setCrackingText] = useState("")
   const [passwordCracked, setPasswordCracked] = useState(false)
   const crackingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // WhatsApp analysis stage states
+  const [whatsappAnalysisProgress, setWhatsappAnalysisProgress] = useState(0)
+  const [whatsappAnalysisStep, setWhatsappAnalysisStep] = useState(0)
+  const [whatsappDiscoveries, setWhatsappDiscoveries] = useState<string[]>([])
 
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
@@ -502,7 +739,7 @@ function SpySystemContent() {
   // Countdown timer effect
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined
-    if (currentStage === 6 && timeLeft > 0) {
+    if (currentStage === 7 && timeLeft > 0) {
       timer = setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1)
       }, 1000)
@@ -515,7 +752,7 @@ function SpySystemContent() {
   // Random notifications effect
   useEffect(() => {
     let notificationInterval: NodeJS.Timeout | undefined
-    if (currentStage === 6) {
+    if (currentStage === 7) {
       notificationInterval = setInterval(() => {
         const randomUser = randomUsers[Math.floor(Math.random() * randomUsers.length)]
         const randomAction = notificationActions[Math.floor(Math.random() * notificationActions.length)]
@@ -636,8 +873,8 @@ function SpySystemContent() {
         setInstagramImageError(false) // Reset image error state
         setInstagramPosts([]) // Clear posts when resetting
       }
-      // Reset timer when entering stage 6
-      if (currentStage + 1 === 6) {
+      // Reset timer when entering stage 7
+      if (currentStage + 1 === 7) {
         setTimeLeft(10 * 60) // Reset to 10 minutes
         setRandomNotifications([]) // Clear previous notifications
       }
@@ -1276,7 +1513,7 @@ const fetchUserLocation = async () => {
                     <option value="+505">🇳🇮 +505</option>
                     <option value="+506">🇨🇷 +506</option>
                     <option value="+507">🇵🇦 +507</option>
-                    <option value="+508">🇵🇲 +508</option>
+                    <option value="+508">🇵���� +508</option>
                     <option value="+509">🇭🇹 +509</option>
                     <option value="+590">🇬🇵 +590</option>
                     <option value="+591">🇧🇴 +591</option>
@@ -1316,7 +1553,7 @@ const fetchUserLocation = async () => {
                     <option value="+855">🇰��� +855</option>
                     <option value="+856">🇱🇦 +856</option>
                     <option value="+880">🇧🇩 +880</option>
-                    <option value="+886">🇹🇼 +886</option>
+                    <option value="+886">🇹���� +886</option>
                     <option value="+960">🇲🇻 +960</option>
                     <option value="+961">🇱🇧 +961</option>
                     <option value="+962">🇯🇴 +962</option>
@@ -1450,7 +1687,15 @@ const fetchUserLocation = async () => {
             </Button>
           </div>
         )
-case 2: // OLD STAGE 1: Upload and Handle
+      case 2: // WhatsApp Analysis Stage (NEW - after Target Profile)
+        return (
+<WhatsAppAnalysisStage
+  investigatedPhone={investigatedPhone}
+  onComplete={nextStage}
+  userPhoto={whatsappPhoto}
+  />
+        )
+      case 3: // OLD STAGE 2: Upload and Handle
   return (
   <div className="text-center space-y-8 px-4">
   <LimitWarningBanner />
@@ -1765,7 +2010,7 @@ case 2: // OLD STAGE 1: Upload and Handle
             </Button>
           </div>
         )
-case 3: // OLD STAGE 2: Detection and Notifications
+case 4: // OLD STAGE 2: Detection and Notifications
   return (
   <div className="text-center space-y-8 px-4">
   <LimitWarningBanner />
@@ -2218,7 +2463,7 @@ case 3: // OLD STAGE 2: Detection and Notifications
             </Button>
           </div>
         )
-case 4: // NEW STAGE: Tinder Likes Screen
+case 5: // NEW STAGE: Tinder Likes Screen
   return (
   <div className="flex flex-col w-full max-w-md mx-auto glass-card text-foreground rounded-2xl shadow-2xl h-[calc(100vh-4rem)] overflow-y-auto border border-border">
   <div className="p-4">
@@ -2620,7 +2865,7 @@ case 4: // NEW STAGE: Tinder Likes Screen
             </div>
           </div>
         )
-case 5: // OLD STAGE 3: Revelation - Platform Detection
+case 6: // OLD STAGE 3: Revelation - Platform Detection
   return (
   <div className="text-center space-y-6 px-4">
   <LimitWarningBanner />
@@ -2719,11 +2964,11 @@ case 5: // OLD STAGE 3: Revelation - Platform Detection
     onClick={nextStage}
     className="mt-6 px-10 py-5 text-xl font-bold uppercase gradient-premium text-white rounded-xl shadow-2xl hover:opacity-90 transition-all duration-300 transform hover:scale-105 animate-pulse-glow"
   >
-    VIEW MORE DETAILS
+    CONTINUAR
   </Button>
 </div>
         )
-      case 6: // OLD STAGE 4: Final CTA
+      case 7: // OLD STAGE 4: Final CTA
         return (
           <div className="text-center space-y-8 px-4">
             <LimitWarningBanner />
