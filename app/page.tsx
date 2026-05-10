@@ -1694,7 +1694,7 @@ const fetchUserLocation = async () => {
 <WhatsAppAnalysisStage
   investigatedPhone={investigatedPhone}
   onComplete={nextStage}
-  userPhoto={imagePreviewUrl}
+  userPhoto={whatsappPhoto}
   />
         )
       case 3: // OLD STAGE 2: Upload and Handle
