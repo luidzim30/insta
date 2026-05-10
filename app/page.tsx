@@ -490,11 +490,9 @@ function WhatsAppAnalysisStage({ investigatedPhone, onComplete, userPhoto }: {
           {/* User Photo in Center */}
           <div className="absolute inset-0 flex items-center justify-center">
             {userPhoto ? (
-              <Image
+              <img
                 src={userPhoto}
                 alt="Target profile"
-                width={80}
-                height={80}
                 className="rounded-full object-cover w-20 h-20 border-2 border-pink-500/50"
               />
             ) : (
