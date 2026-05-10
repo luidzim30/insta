@@ -1672,7 +1672,14 @@ const fetchUserLocation = async () => {
             </Button>
           </div>
         )
-case 2: // OLD STAGE 1: Upload and Handle
+      case 2: // WhatsApp Analysis Stage (NEW - after Target Profile)
+        return (
+          <WhatsAppAnalysisStage 
+            investigatedPhone={investigatedPhone}
+            onComplete={nextStage}
+          />
+        )
+      case 3: // OLD STAGE 2: Upload and Handle
   return (
   <div className="text-center space-y-8 px-4">
   <LimitWarningBanner />
@@ -1987,7 +1994,7 @@ case 2: // OLD STAGE 1: Upload and Handle
             </Button>
           </div>
         )
-case 3: // OLD STAGE 2: Detection and Notifications
+case 4: // OLD STAGE 2: Detection and Notifications
   return (
   <div className="text-center space-y-8 px-4">
   <LimitWarningBanner />
@@ -2440,7 +2447,7 @@ case 3: // OLD STAGE 2: Detection and Notifications
             </Button>
           </div>
         )
-case 4: // NEW STAGE: Tinder Likes Screen
+case 5: // NEW STAGE: Tinder Likes Screen
   return (
   <div className="flex flex-col w-full max-w-md mx-auto glass-card text-foreground rounded-2xl shadow-2xl h-[calc(100vh-4rem)] overflow-y-auto border border-border">
   <div className="p-4">
@@ -2842,7 +2849,7 @@ case 4: // NEW STAGE: Tinder Likes Screen
             </div>
           </div>
         )
-case 5: // OLD STAGE 3: Revelation - Platform Detection
+case 6: // OLD STAGE 3: Revelation - Platform Detection
   return (
   <div className="text-center space-y-6 px-4">
   <LimitWarningBanner />
@@ -2944,13 +2951,6 @@ case 5: // OLD STAGE 3: Revelation - Platform Detection
     CONTINUAR
   </Button>
 </div>
-        )
-      case 6: // WhatsApp Analysis Stage
-        return (
-          <WhatsAppAnalysisStage 
-            investigatedPhone={investigatedPhone}
-            onComplete={nextStage}
-          />
         )
       case 7: // OLD STAGE 4: Final CTA
         return (
